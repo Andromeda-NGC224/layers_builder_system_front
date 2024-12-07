@@ -1,14 +1,21 @@
+import { Route, Routes } from "react-router-dom";
+import { lazy } from "react";
+import Layout from "../Layout/Layout.jsx";
 
-import { Route, Routes } from 'react-router-dom';
-import './App.css'
+const HomePage = lazy(() => import("../../pages/HomePage/HomePage.jsx"));
+const NotFoundPage = lazy(() =>
+  import("../../pages/NotFoundPage/NotFoundPage.jsx")
+);
+const DiagramsPage = lazy(() =>
+  import("../../pages/DiagramsPage/DiagramsPage.jsx")
+);
 
 export default function App() {
   return (
     <Layout>
       <Routes>
         <Route path="/" element={<HomePage />}></Route>
-        <Route path="/superheroes" element={<HeroesCatalogPage />}></Route>
-        <Route path="/superheroes/:id" element={<HeroesDetailPage />}></Route>
+        <Route path="/diagrams" element={<DiagramsPage />}></Route>
         <Route path="*" element={<NotFoundPage />}></Route>
       </Routes>
     </Layout>

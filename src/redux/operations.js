@@ -1,37 +1,40 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { c } from "vite/dist/node/types.d-aGj9QkWt";
 
-const diagramsApiUrl = "123";
-
+// const diagramsApiUrl = "https://layers-builder-system-backend.onrender.com/api";
+const diagramsApiUrlHost = "http://localhost:3000/api";
 
 export const createDiagram = createAsyncThunk(
-    "diagrams/createDiagrams",
-    async (diagramData, thunkAPI) => {
-      try {
-        const response = await axios.post(
-          `${diagramsApiUrl}/diagrams`,
-          diagramData
-        );
-        return response.data.data;
-      } catch (error) {
-        if (error.response && error.response.status === 404) {
-          return thunkAPI.rejectWithValue("Diagram was not created");
-        }
-        return thunkAPI.rejectWithValue(error.message);
-      }
-    }
-  );
-
-  export const fetchOneDiagram = createAsyncThunk("diagrams/fetchOneDiagram",
-    async (id, thunkAPI) => {
-        try {
-        const response = await axios.get(`${diagramsApiUrl}/diagrams/${id}`);
-     return response.data.data;   
+  "diagrams/createDiagrams",
+  async (diagramData, thunkAPI) => {
+    try {
+      const response = await axios.post(
+        `${diagramsApiUrlHost}/diagrams`,
+        diagramData
+      );
+      return response.data.data;
     } catch (error) {
-        if (error.response && error.response.status === 404) {
-          return thunkAPI.rejectWithValue("Diagram was not found");
-        }
-        return thunkAPI.rejectWithValue(error.message);
+      if (error.response && error.response.status === 404) {
+        return thunkAPI.rejectWithValue("Diagram was not created");
       }
-    });
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const fetchOneDiagram = createAsyncThunk(
+  "diagrams/fetchOneDiagram",
+  async (id, thunkAPI) => {
+    try {
+      const response = await axios.get(`${diagramsApiUrlHost}/diagrams/${id}`);
+      console.log(response.data.data);
+
+      return response.data.data;
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        return thunkAPI.rejectWithValue("Diagram was not found");
+      }
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
