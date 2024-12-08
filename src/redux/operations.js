@@ -8,6 +8,8 @@ export const createDiagram = createAsyncThunk(
   "diagrams/createDiagrams",
   async (diagramData, thunkAPI) => {
     try {
+      console.log(diagramData);
+
       const response = await axios.post(
         `${diagramsApiUrlHost}/diagrams`,
         diagramData

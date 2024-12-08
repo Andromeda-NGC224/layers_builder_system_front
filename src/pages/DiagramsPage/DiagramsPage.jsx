@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { fetchOneDiagram } from "../../redux/operations.js";
+import { useDispatch, useSelector } from "react-redux";
+import { createDiagram } from "../../redux/operations.js";
 import {
   ReactFlow,
   addEdge,
@@ -12,104 +12,133 @@ import {
 } from "@xyflow/react";
 
 import "@xyflow/react/dist/style.css";
+import {
+  selectActiveDiagram,
+  selectAllDiagrams,
+} from "../../redux/selectors.js";
+import { updateDiagram } from "../../redux/diagramsSlice.js";
+
+let nodeIdCounter = 1;
+let edgeIdCounter = 1;
+let groupIdCounter = 1;
+
+const generateNodeId = () => `node-${nodeIdCounter++}`;
+const generateEdgeId = () => `edge-${edgeIdCounter++}`;
+const generateGroupId = () => `group-${groupIdCounter++}`;
 
 const initialNodes = [
   {
-    id: "1",
+    id: generateNodeId(),
     type: "input",
-    data: { label: "Node 0" },
+    data: { label: "First Node" },
     position: { x: 250, y: 5 },
   },
-  {
-    id: "2",
-    data: { label: "Group A" },
-    position: { x: 100, y: 100 },
-    style: { width: 200, height: 200 },
-    type: "group",
-  },
-  {
-    id: "2a",
-    data: { label: "Node A.1" },
-    position: { x: 10, y: 50 },
-    parentId: "2",
-  },
-  {
-    id: "3",
-    data: { label: "Node 1" },
-    position: { x: 320, y: 100 },
-  },
-  {
-    id: "4",
-    data: { label: "Group B" },
-    position: { x: 320, y: 200 },
-    style: { width: 300, height: 300 },
-    type: "group",
-  },
-  {
-    id: "4a",
-    data: { label: "Node B.1" },
-    position: { x: 15, y: 65 },
-    parentId: "4",
-    extent: "parent",
-  },
-  {
-    id: "4b",
-    data: { label: "Group B.A" },
-    position: { x: 15, y: 120 },
-    style: {
-      backgroundColor: "rgba(255, 0, 255, 0.2)",
-      height: 150,
-      width: 270,
-    },
-    parentId: "4",
-  },
-  {
-    id: "4b1",
-    data: { label: "Node B.A.1" },
-    position: { x: 20, y: 40 },
-    parentId: "4b",
-  },
-  {
-    id: "4b2",
-    data: { label: "Node B.A.2" },
-    position: { x: 100, y: 100 },
-    parentId: "4b",
-  },
 ];
 
-const initialEdges = [
-  { id: "e1-2", source: "1", target: "2", animated: true },
-  { id: "e1-3", source: "1", target: "3" },
-  { id: "e2a-4a", source: "2a", target: "4a" },
-  { id: "e3-4b", source: "3", target: "4b" },
-  { id: "e4a-4b1", source: "4a", target: "4b1" },
-  { id: "e4a-4b2", source: "4a", target: "4b2" },
-  { id: "e4b1-4b2", source: "4b1", target: "4b2" },
-];
+const initialEdges = [];
 
 export default function DiagramsPage() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-
-  const onConnect = useCallback((connection) => {
-    setEdges((eds) => addEdge(connection, eds));
-  }, []);
-
   const dispatch = useDispatch();
+  const activeDiagram = useSelector(selectActiveDiagram);
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(
+    activeDiagram?.blocks || initialNodes
+  );
+  const [edges, setEdges, onEdgesChange] = useEdgesState(
+    activeDiagram?.connections || initialEdges
+  );
+
   useEffect(() => {
-    dispatch(fetchOneDiagram("67530699090b30982576b1d5"));
-  }, [dispatch]);
+    if (activeDiagram?.id) {
+      dispatch(
+        updateDiagram({
+          id: activeDiagram.id,
+          blocks: nodes,
+          connections: edges,
+        })
+      );
+    }
+  }, [nodes, edges, activeDiagram?.id, dispatch]);
+
+  const saveDiagram = useCallback(() => {
+    const diagramData = {
+      diagramName: `Diagram ${Date.now()}`,
+      blocks: nodes,
+      connections: edges,
+    };
+
+    dispatch(createDiagram(diagramData));
+  }, [dispatch, nodes, edges]);
+
+  const addNode = useCallback(() => {
+    const newId = generateNodeId();
+    const newNode = {
+      id: newId,
+      data: { label: `Node ${newId}` },
+      position: { x: Math.random() * 300, y: Math.random() * 300 },
+    };
+    setNodes((nds) => [...nds, newNode]);
+  }, [setNodes]);
+
+  const addGroup = useCallback(() => {
+    const newGroupId = generateGroupId();
+    const newGroup = {
+      id: newGroupId,
+      type: "group",
+      data: { label: `Group ${newGroupId}` },
+      position: { x: Math.random() * 400, y: Math.random() * 400 },
+      style: {
+        width: 200,
+        height: 200,
+        backgroundColor: "rgba(0, 128, 255, 0.2)",
+      },
+    };
+    const childNodeId = generateNodeId();
+    const childNode = {
+      id: childNodeId,
+      data: { label: `Node in ${newGroupId}` },
+      position: { x: 10, y: 50 },
+      parentId: newGroupId,
+    };
+
+    setNodes((nds) => [...nds, newGroup, childNode]);
+  }, [setNodes]);
+
+  const onConnect = useCallback(
+    (connection) => {
+      const newEdge = { ...connection, id: generateEdgeId() };
+      setEdges((eds) => addEdge(newEdge, eds));
+    },
+    [setEdges]
+  );
 
   return (
     <div style={{ width: "100%", height: "94vh" }}>
       <h1>DiagramsPage</h1>
+      <button
+        onClick={addNode}
+        style={{ position: "absolute", zIndex: 10, top: 10, left: 10 }}
+      >
+        Add Node
+      </button>
+      <button
+        onClick={addGroup}
+        style={{ position: "absolute", zIndex: 10, top: 10, left: 100 }}
+      >
+        Add Group
+      </button>
+      <button
+        onClick={saveDiagram}
+        style={{ position: "absolute", zIndex: 10, top: 10, left: 200 }}
+      >
+        Save Diagram
+      </button>
       <ReactFlow
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        className="react-flow-subflows-example"
         fitView
         style={{ backgroundColor: "#F7F9FB" }}
       >

@@ -2,7 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import { createDiagram, fetchOneDiagram } from "./operations.js";
 
 const initialState = {
-  diagrams: [],
+  diagrams: {},
+  activeDiagramId: null,
   loading: false,
   error: null,
 };
@@ -12,7 +13,22 @@ const diagramsSlice = createSlice({
   initialState,
   reducers: {
     resetDiagrams: (state) => {
-      state.diagrams = [];
+      state.diagrams = {};
+      state.activeDiagramId = null;
+    },
+    addDiagram: (state, action) => {
+      const newDiagram = action.payload;
+      state.diagrams[newDiagram.id] = newDiagram;
+    },
+    setActiveDiagram: (state, action) => {
+      state.activeDiagramId = action.payload;
+    },
+    updateDiagram: (state, action) => {
+      const { id, blocks, connections } = action.payload;
+      if (state.diagrams[id]) {
+        state.diagrams[id].blocks = blocks;
+        state.diagrams[id].connections = connections;
+      }
     },
   },
   extraReducers: (builder) => {
@@ -22,7 +38,7 @@ const diagramsSlice = createSlice({
       })
       .addCase(fetchOneDiagram.fulfilled, (state, action) => {
         state.loading = false;
-        state.diagrams = action.payload;
+        state.diagrams[action.payload.id] = action.payload;
       })
       .addCase(fetchOneDiagram.rejected, (state, action) => {
         state.loading = false;
@@ -33,7 +49,8 @@ const diagramsSlice = createSlice({
       })
       .addCase(createDiagram.fulfilled, (state, action) => {
         state.loading = false;
-        state.diagrams = action.payload;
+        const newDiagram = action.payload;
+        state.diagrams[newDiagram.id] = newDiagram;
       })
       .addCase(createDiagram.rejected, (state, action) => {
         state.loading = false;
@@ -42,5 +59,6 @@ const diagramsSlice = createSlice({
   },
 });
 
-export const { resetDiagrams } = diagramsSlice.actions;
+export const { resetDiagrams, addDiagram, setActiveDiagram, updateDiagram } =
+  diagramsSlice.actions;
 export default diagramsSlice.reducer;
