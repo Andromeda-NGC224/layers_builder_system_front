@@ -1,11 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createDiagram, fetchOneDiagram } from "./operations.js";
+import {
+  createDiagram,
+  fetchAllDiagrams,
+  fetchOneDiagram,
+} from "./operations.js";
 
 const initialState = {
-  diagrams: {},
+  diagrams: [],
   activeDiagramId: null,
   loading: false,
   error: null,
+  totalItems: 0,
 };
 
 const diagramsSlice = createSlice({
@@ -13,7 +18,7 @@ const diagramsSlice = createSlice({
   initialState,
   reducers: {
     resetDiagrams: (state) => {
-      state.diagrams = {};
+      state.diagrams = [];
       state.activeDiagramId = null;
     },
     addDiagram: (state, action) => {
@@ -33,6 +38,20 @@ const diagramsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchAllDiagrams.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchAllDiagrams.fulfilled, (state, action) => {
+        state.loading = false;
+        state.diagrams = [...state.diagrams, ...action.payload.data.diagrams];
+        console.log(action.payload.data);
+
+        state.totalItems = action.payload.data.totalItems;
+      })
+      .addCase(fetchAllDiagrams.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
       .addCase(fetchOneDiagram.pending, (state) => {
         state.loading = true;
       })

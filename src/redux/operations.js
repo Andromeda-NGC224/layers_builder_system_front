@@ -4,6 +4,19 @@ import axios from "axios";
 // const diagramsApiUrl = "https://layers-builder-system-backend.onrender.com/api";
 const diagramsApiUrlHost = "http://localhost:3000/api";
 
+export const fetchAllDiagrams = createAsyncThunk(
+  "diagrams/fetchAllDiagrams",
+  async (_, thunkAPI) => {
+    try {
+      const response = await axios.get(`${diagramsApiUrlHost}/diagrams`);
+
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
 export const createDiagram = createAsyncThunk(
   "diagrams/createDiagrams",
   async (diagramData, thunkAPI) => {

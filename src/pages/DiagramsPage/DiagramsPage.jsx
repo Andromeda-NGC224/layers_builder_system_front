@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { createDiagram } from "../../redux/operations.js";
+import { createDiagram, fetchAllDiagrams } from "../../redux/operations.js";
+import { resetDiagrams } from "../../redux/diagramsSlice.js";
 import {
   ReactFlow,
   addEdge,
@@ -16,7 +17,6 @@ import {
   selectActiveDiagram,
   selectAllDiagrams,
 } from "../../redux/selectors.js";
-import { updateDiagram } from "../../redux/diagramsSlice.js";
 
 let nodeIdCounter = 1;
 let edgeIdCounter = 1;
@@ -26,20 +26,15 @@ const generateNodeId = () => `node-${nodeIdCounter++}`;
 const generateEdgeId = () => `edge-${edgeIdCounter++}`;
 const generateGroupId = () => `group-${groupIdCounter++}`;
 
-const initialNodes = [
-  {
-    id: generateNodeId(),
-    type: "input",
-    data: { label: "First Node" },
-    position: { x: 250, y: 5 },
-  },
-];
+const initialNodes = [];
 
 const initialEdges = [];
 
 export default function DiagramsPage() {
   const dispatch = useDispatch();
   const activeDiagram = useSelector(selectActiveDiagram);
+  const allDiagrams = useSelector(selectAllDiagrams);
+  console.log(allDiagrams);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(
     activeDiagram?.blocks || initialNodes
@@ -49,16 +44,32 @@ export default function DiagramsPage() {
   );
 
   useEffect(() => {
-    if (activeDiagram?.id) {
-      dispatch(
-        updateDiagram({
-          id: activeDiagram.id,
-          blocks: nodes,
-          connections: edges,
-        })
-      );
+    dispatch(resetDiagrams());
+    const loadDiagrams = async () => {
+      await dispatch(fetchAllDiagrams());
+    };
+    loadDiagrams();
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (allDiagrams.length > 0) {
+      const firstDiagram = allDiagrams[0];
+      setNodes(firstDiagram.blocks || initialNodes);
+      setEdges(firstDiagram.connections || initialEdges);
     }
-  }, [nodes, edges, activeDiagram?.id, dispatch]);
+  }, [allDiagrams, setNodes, setEdges]);
+
+  // useEffect(() => {
+  //   if (activeDiagram?.id) {
+  //     dispatch(
+  //       updateDiagram({
+  //         id: activeDiagram.id,
+  //         blocks: nodes,
+  //         connections: edges,
+  //       })
+  //     );
+  //   }
+  // }, [nodes, edges, activeDiagram?.id, dispatch]);
 
   const saveDiagram = useCallback(() => {
     const diagramData = {
@@ -133,6 +144,7 @@ export default function DiagramsPage() {
       >
         Save Diagram
       </button>
+
       <ReactFlow
         nodes={nodes}
         edges={edges}
