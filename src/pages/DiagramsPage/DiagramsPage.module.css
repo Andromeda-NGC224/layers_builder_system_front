@@ -1,0 +1,8 @@
+.mainContainer {
+  display: flex;
+  height: 100vh;
+}
+.diagramContainer {
+  flex: 1;
+  height: 100%;
+}

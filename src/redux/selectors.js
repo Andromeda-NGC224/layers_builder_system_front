@@ -1,5 +1,12 @@
-export const selectAllDiagrams = (state) =>
-  Object.values(state.diagrams.diagrams);
+import { createSelector } from "reselect";
+
+export const selectDiagramsState = (state) => state.diagrams;
+
+export const selectAllDiagrams = createSelector(
+  [selectDiagramsState],
+  (diagramsState) => Object.values(diagramsState.diagrams)
+);
+
 export const selectActiveDiagram = (state) =>
   state.diagrams.diagrams[state.diagrams.activeDiagramId];
 export const selectLoadingState = (state) => state.diagrams.loading;

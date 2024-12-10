@@ -9,13 +9,13 @@ import Loader from "../src/components/Loader/Loader.jsx";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <Provider store={store}>
-        <PersistGate loading={<Loader />} persistor={persistor}>
-          <App />
-        </PersistGate>
-      </Provider>
-    </BrowserRouter>
-  </React.StrictMode>
+  // <React.StrictMode>
+  <BrowserRouter>
+    <Provider store={store}>
+      <PersistGate loading={<Loader />} persistor={persistor}>
+        <App />
+      </PersistGate>
+    </Provider>
+  </BrowserRouter>
+  //  </React.StrictMode>
 );

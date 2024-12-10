@@ -53,3 +53,24 @@ export const fetchOneDiagram = createAsyncThunk(
     }
   }
 );
+
+export const updateDiagram = createAsyncThunk(
+  "diagrams/updateDiagram",
+  async ({ id, diagramData }, thunkAPI) => {
+    console.log(diagramData);
+    console.log(id);
+
+    try {
+      const response = await axios.patch(
+        `${diagramsApiUrlHost}/diagrams/${id}`,
+        diagramData
+      );
+      return response.data.data;
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        return thunkAPI.rejectWithValue("Diagram was not updated");
+      }
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);

@@ -3,6 +3,7 @@ import {
   createDiagram,
   fetchAllDiagrams,
   fetchOneDiagram,
+  updateDiagram,
 } from "./operations.js";
 
 const initialState = {
@@ -30,9 +31,13 @@ const diagramsSlice = createSlice({
     },
     updateDiagram: (state, action) => {
       const { id, blocks, connections } = action.payload;
-      if (state.diagrams[id]) {
-        state.diagrams[id].blocks = blocks;
-        state.diagrams[id].connections = connections;
+      const index = state.diagrams.findIndex((diagram) => diagram.id === id);
+      if (index !== -1) {
+        state.diagrams[index] = {
+          ...state.diagrams[index],
+          blocks,
+          connections,
+        };
       }
     },
   },
@@ -44,8 +49,6 @@ const diagramsSlice = createSlice({
       .addCase(fetchAllDiagrams.fulfilled, (state, action) => {
         state.loading = false;
         state.diagrams = [...state.diagrams, ...action.payload.data.diagrams];
-        console.log(action.payload.data);
-
         state.totalItems = action.payload.data.totalItems;
       })
       .addCase(fetchAllDiagrams.rejected, (state, action) => {
@@ -57,7 +60,15 @@ const diagramsSlice = createSlice({
       })
       .addCase(fetchOneDiagram.fulfilled, (state, action) => {
         state.loading = false;
-        state.diagrams[action.payload.id] = action.payload;
+        const diagram = action.payload;
+        const index = state.diagrams.findIndex(
+          (diag) => diag.id === diagram.id
+        );
+        if (index !== -1) {
+          state.diagrams[index] = diagram;
+        } else {
+          state.diagrams.push(diagram);
+        }
       })
       .addCase(fetchOneDiagram.rejected, (state, action) => {
         state.loading = false;
@@ -68,16 +79,31 @@ const diagramsSlice = createSlice({
       })
       .addCase(createDiagram.fulfilled, (state, action) => {
         state.loading = false;
-        const newDiagram = action.payload;
-        state.diagrams[newDiagram.id] = newDiagram;
+        state.diagrams.push(action.payload);
       })
       .addCase(createDiagram.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(updateDiagram.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateDiagram.fulfilled, (state, action) => {
+        state.loading = false;
+        const updatedDiagram = action.payload;
+        console.log(updatedDiagram);
+
+        state.diagrams = state.diagrams.map((diagram) =>
+          diagram._id === updatedDiagram._id ? updatedDiagram : diagram
+        );
+      })
+      .addCase(updateDiagram.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });
   },
 });
 
-export const { resetDiagrams, addDiagram, setActiveDiagram, updateDiagram } =
+export const { resetDiagrams, addDiagram, setActiveDiagram } =
   diagramsSlice.actions;
 export default diagramsSlice.reducer;
