@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { updateDiagram } from "../../redux/operations.js";
 import {
   addEdge,
@@ -12,15 +12,20 @@ import {
 } from "@xyflow/react";
 import MemoizedResizableNode from "../ResizableElements/ResizableNode.jsx";
 import MemoizedResizableGroup from "../ResizableElements/ResizableGroup.jsx";
+import { selectAllDiagrams } from "../../redux/selectors.js";
 
 const nodeTypes = {
   resizableNode: MemoizedResizableNode,
   resizableGroup: MemoizedResizableGroup,
 };
 
-export default function DiagramsList({ allDiagrams }) {
+export default function DiagramsFolder() {
   const dispatch = useDispatch();
   const [selectedGroup, setSelectedGroup] = useState(null);
+  const [selectedNode, setSelectedNode] = useState(null);
+
+  const currentDiagrama = useSelector(selectAllDiagrams);
+  console.log(currentDiagrama);
 
   const counterRef = useRef({
     node: Date.now(),
@@ -52,57 +57,32 @@ export default function DiagramsList({ allDiagrams }) {
     }
   }, []);
 
+  const handleNodeSelection = useCallback((selection) => {
+    const selectedNode = selection.nodes[0];
+    setSelectedNode(selectedNode);
+  }, []);
+
   useEffect(() => {
-    if (allDiagrams.length > 0) {
-      const firstDiagram = allDiagrams[0];
-      setNodes(firstDiagram.blocks || []);
-      setEdges(firstDiagram.connections || []);
+    if (currentDiagrama.length > 0) {
+      setNodes(currentDiagrama[0].blocks || []);
+      setEdges(currentDiagrama[0].connections || []);
     } else {
       setNodes([]);
       setEdges([]);
     }
-  }, [allDiagrams, setNodes, setEdges]);
+  }, [currentDiagrama, setNodes, setEdges]);
 
   const updateDiagramHandler = useCallback(() => {
     const diagramData = {
-      diagramName: allDiagrams[0].diagramName || `Diagram ${Date.now()}`,
+      diagramName: currentDiagrama[0].diagramName || `Diagram ${Date.now()}`,
       blocks: nodes,
       connections: edges,
     };
-    const diagramId = allDiagrams[0]._id;
+    const diagramId = currentDiagrama[0]._id;
+    console.log(diagramId);
+
     dispatch(updateDiagram({ id: diagramId, diagramData }));
-  }, [allDiagrams, nodes, edges, dispatch]);
-
-  const addNode = useCallback(() => {
-    const newId = generateNodeId();
-    const newNode = {
-      id: newId,
-      type: "resizableNode",
-      data: { label: `Node ${newId}` },
-      position: { x: Math.random() * 300, y: Math.random() * 300 },
-    };
-    setNodes((nds) => [...nds, newNode]);
-  }, [setNodes]);
-
-  const addGroup = useCallback(() => {
-    const newGroupId = generateGroupId();
-    const newGroup = {
-      id: newGroupId,
-      type: "resizableGroup",
-      data: { label: `Group ${newGroupId}` },
-      position: { x: Math.random() * 400, y: Math.random() * 400 },
-      style: {
-        width: 200,
-        height: 200,
-        backgroundColor: "rgba(0, 128, 255, 0.2)",
-      },
-      draggable: true,
-      selectable: true,
-      resizing: true,
-    };
-
-    setNodes((nds) => [...nds, newGroup]);
-  }, [setNodes]);
+  }, [currentDiagrama, nodes, edges, dispatch]);
 
   const addNodeToGroup = useCallback(() => {
     if (!selectedGroup) {
@@ -177,6 +157,33 @@ export default function DiagramsList({ allDiagrams }) {
     });
   }, [selectedGroup, nodes, setNodes]);
 
+  const deleteSelectedItem = useCallback(() => {
+    if (!selectedGroup && !selectedNode) {
+      alert("Select an item to delete!");
+      return;
+    }
+
+    const idsToDelete = new Set(selectedNode);
+
+    if (selectedGroup) {
+      idsToDelete.add(selectedGroup);
+    }
+
+    if (selectedNode) {
+      idsToDelete.add(selectedNode.id);
+    }
+
+    setNodes((nds) => nds.filter((node) => node.id !== selectedGroup));
+    setEdges((eds) =>
+      eds.filter(
+        (edge) => edge.source !== selectedGroup && edge.target !== selectedGroup
+      )
+    );
+
+    setSelectedGroup(null);
+    setSelectedNode(null);
+  }, [selectedGroup, selectedNode, setNodes, setEdges]);
+
   const onConnect = useCallback(
     (connection) => {
       const newEdge = { ...connection, id: generateEdgeId() };
@@ -197,8 +204,6 @@ export default function DiagramsList({ allDiagrams }) {
           gap: "10px",
         }}
       >
-        <button onClick={addNode}>Add Node</button>
-        <button onClick={addGroup}>Add Group</button>
         <button
           onClick={addNodeToGroup}
           style={{ opacity: selectedGroup ? 1 : 0.5 }}
@@ -214,6 +219,7 @@ export default function DiagramsList({ allDiagrams }) {
           Add Nested Group
         </button>
         <button onClick={updateDiagramHandler}>Update Diagram</button>
+        <button onClick={deleteSelectedItem}>Delete selected item</button>
       </div>
 
       {selectedGroup && (

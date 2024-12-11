@@ -60,15 +60,7 @@ const diagramsSlice = createSlice({
       })
       .addCase(fetchOneDiagram.fulfilled, (state, action) => {
         state.loading = false;
-        const diagram = action.payload;
-        const index = state.diagrams.findIndex(
-          (diag) => diag.id === diagram.id
-        );
-        if (index !== -1) {
-          state.diagrams[index] = diagram;
-        } else {
-          state.diagrams.push(diagram);
-        }
+        state.diagrams = [action.payload];
       })
       .addCase(fetchOneDiagram.rejected, (state, action) => {
         state.loading = false;

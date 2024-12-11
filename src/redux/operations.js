@@ -42,7 +42,6 @@ export const fetchOneDiagram = createAsyncThunk(
   async (id, thunkAPI) => {
     try {
       const response = await axios.get(`${diagramsApiUrlHost}/diagrams/${id}`);
-      console.log(response.data.data);
 
       return response.data.data;
     } catch (error) {
@@ -57,9 +56,6 @@ export const fetchOneDiagram = createAsyncThunk(
 export const updateDiagram = createAsyncThunk(
   "diagrams/updateDiagram",
   async ({ id, diagramData }, thunkAPI) => {
-    console.log(diagramData);
-    console.log(id);
-
     try {
       const response = await axios.patch(
         `${diagramsApiUrlHost}/diagrams/${id}`,
