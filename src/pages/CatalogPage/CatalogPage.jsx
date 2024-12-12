@@ -4,6 +4,7 @@ import { resetDiagrams } from "../../redux/diagramsSlice.js";
 import { createDiagram, fetchAllDiagrams } from "../../redux/operations.js";
 import { selectAllDiagrams } from "../../redux/selectors.js";
 import { Link } from "react-router-dom";
+import { v4 as uuidv4 } from 'uuid';
 
 export default function CatalogPage() {
   const dispatch = useDispatch();
@@ -19,9 +20,9 @@ export default function CatalogPage() {
   }, [dispatch]);
 
   const createNewDiagram = useCallback(() => {
-    const parentGroupId = `group-${Date.now()}`;
-    const childGroup1Id = `group-${Date.now() + 1}`;
-    const childGroup2Id = `group-${Date.now() + 2}`;
+    const parentGroupId = `group-${uuidv4()}`;
+const childGroup1Id = `group-${uuidv4()}`;
+const childGroup2Id = `group-${uuidv4()}`;
 
     const initialNodes = [
       {
@@ -33,10 +34,6 @@ export default function CatalogPage() {
           width: "90vw",
           height: "90vh",
           backgroundColor: "rgba(0, 128, 255, 0.2)",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: "10px",
         },
         draggable: true,
         selectable: true,

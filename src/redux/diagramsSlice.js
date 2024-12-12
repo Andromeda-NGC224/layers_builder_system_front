@@ -83,8 +83,6 @@ const diagramsSlice = createSlice({
       .addCase(updateDiagram.fulfilled, (state, action) => {
         state.loading = false;
         const updatedDiagram = action.payload;
-        console.log(updatedDiagram);
-
         state.diagrams = state.diagrams.map((diagram) =>
           diagram._id === updatedDiagram._id ? updatedDiagram : diagram
         );
