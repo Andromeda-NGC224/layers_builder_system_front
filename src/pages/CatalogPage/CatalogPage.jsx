@@ -95,14 +95,22 @@ export default function CatalogPage() {
           Create a new Diagram
         </button>
       </div>
-      <ul className={css.list}>
-        {allDiagrams.map((diagram) => (
-          <li className={css.listItem} key={diagram._id}>
-            <FaProjectDiagram />
-            <Link to={`/diagrams/${diagram._id}`}>{diagram.diagramName}</Link>
-          </li>
-        ))}
-      </ul>
+      {allDiagrams.length <= 0 ? (
+        <div className={css.noDiagrams}>
+          <h3>No diagrams yet...</h3>
+        </div>
+      ) : (
+        <ul className={css.list}>
+          {allDiagrams.map((diagram) => (
+            <li key={diagram._id}>
+              <Link className={css.listItem} to={`/diagrams/${diagram._id}`}>
+                <FaProjectDiagram />
+                <p>{diagram.diagramName}</p>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
       <ModalForm
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

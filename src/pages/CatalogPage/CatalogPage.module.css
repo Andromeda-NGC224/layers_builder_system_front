@@ -49,3 +49,8 @@
   cursor: pointer;
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
 }
+.noDiagrams {
+  margin: 0 auto;
+  padding-top: 120px;
+  font-family: "Space Mono", serif;
+}
