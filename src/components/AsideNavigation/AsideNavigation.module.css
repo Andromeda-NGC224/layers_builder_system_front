@@ -3,7 +3,7 @@
   background-color: #f5f5f5;
   border-right: 1px solid #ddd;
   padding: 16px;
-  height: 100vh;
+  height: calc(100vh - 119px);
   overflow-y: auto;
 }
 
@@ -36,4 +36,9 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+.textContent {
+  white-space: wrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

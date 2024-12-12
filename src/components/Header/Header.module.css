@@ -1,0 +1,47 @@
+.header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding-top: 24px;
+  padding-left: 8%;
+  padding-right: 8%;
+  padding-bottom: 24px;
+  background-color: #f7f7f7;
+  border-bottom: 1px solid #dcdddf;
+  box-sizing: border-box;
+}
+.active {
+  color: #ba8100;
+}
+.logo {
+  justify-self: start;
+  font-weight: 800;
+  font-size: 24px;
+}
+.logoPartFOLDER {
+  color: #101828;
+}
+.logoPartAPP {
+  color: #ba8100;
+}
+.nav {
+  justify-content: center;
+  font-weight: 500;
+  align-content: center;
+}
+.link {
+  transition: color 0.35s ease;
+}
+.link:hover,
+.link:focus {
+  color: #963131;
+}
+
+.list {
+  display: flex;
+  gap: 8%;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.list li:last-child {
+  padding-left: 25%;
+}

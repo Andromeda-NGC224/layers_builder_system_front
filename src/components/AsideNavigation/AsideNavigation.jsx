@@ -1,3 +1,4 @@
+import { FaFileAlt, FaFolderOpen } from "react-icons/fa";
 import css from "./AsideNavigation.module.css";
 
 const TreeNode = ({ node, nodes, level = 0 }) => {
@@ -9,8 +10,12 @@ const TreeNode = ({ node, nodes, level = 0 }) => {
       style={{ marginLeft: `${level * 20}px`, borderLeft: "1px solid #000" }}
     >
       <div className={css.nodeContent}>
-        {node.type === "group" || node.type === "resizableGroup" ? "📁" : "📄"}
-        {node.data.label}
+        {node.type === "group" || node.type === "resizableGroup" ? (
+          <FaFolderOpen size={20} color="#edc400" />
+        ) : (
+          <FaFileAlt size={20} />
+        )}
+        <p className={css.textContent}>{node.data.label}</p>
       </div>
       {children.length > 0 && (
         <div className={css.children}>

@@ -1,0 +1,31 @@
+.mainContainer {
+  width: 100%;
+  height: calc(100vh - 87px);
+}
+.btnAdd {
+  background-color: rgb(255, 164, 72);
+  color: white;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.btnAdd:hover {
+  background-color: rgb(247, 199, 127);
+}
+
+.btnDelete {
+  background-color: rgb(255, 0, 0);
+  color: white;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.btnDelete:hover {
+  background-color: rgb(255, 91, 91);
+}

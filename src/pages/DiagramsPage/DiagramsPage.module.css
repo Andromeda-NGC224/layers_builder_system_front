@@ -1,6 +1,6 @@
 .mainContainer {
   display: flex;
-  height: 100vh;
+  height: calc(100vh - 87px);
 }
 .diagramContainer {
   flex: 1;
